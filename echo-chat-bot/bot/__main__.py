@@ -10,10 +10,13 @@ def main() -> None:
             updates = bot.telegram_client.getUpdates(next_update_offset)
             bot.database_client.persist_updates(updates)
             for update in updates:
-                bot.telegram_client.sendMessage(
-                    chat_id=update["message"]["chat"]["id"],
-                    text=update["message"]["text"],
-                )
+                try:
+                    bot.telegram_client.sendMessage(
+                        chat_id=update["message"]["chat"]["id"],
+                        text=update["message"]["text"],
+                    )
+                except:
+                    pass
                 print(".", end="", flush=True)
                 next_update_offset = max(next_update_offset, update["update_id"] + 1)
             time.sleep(1)

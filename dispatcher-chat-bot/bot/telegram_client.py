@@ -11,7 +11,7 @@ def makeRequest(method: str, **param) -> dict:
 
     request = urllib.request.Request(
         method="POST",
-        url=f"{os.getenv("TELEGRAM_BASE_URI")}/{method}",
+        url=f"{os.getenv('TELEGRAM_BASE_URI')}/{method}",
         data=json_data,
         headers={
             "Content-Type": "application/json",
@@ -33,5 +33,13 @@ def sendMessage(chat_id: int, text: str, **params) -> dict:
     return makeRequest("sendMessage", chat_id=chat_id, text=text, **params)
 
 
+def deleteMessage(chat_id: int, message_id: int) -> dict:
+    return makeRequest("deleteMessage", chat_id=chat_id, message_id=message_id)
+
+
 def getMe() -> dict:
     return makeRequest("getMe")
+
+
+def answerCallbackQuery(callback_query_id: str, **kwargs) -> dict:
+    return makeRequest("answerCallbackQuery", callback_query_id=callback_query_id, **kwargs)

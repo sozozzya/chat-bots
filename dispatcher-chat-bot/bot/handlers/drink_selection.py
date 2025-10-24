@@ -18,6 +18,8 @@ class DrinkSelection(Handler):
     def handle(self, update: dict, state: str, order_json: dict) -> HandlerStatus:
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
+        chat_id = update["callback_query"]["message"]["chat"]["id"]
+        message_id = update["callback_query"]["message"]["message_id"]
 
         drink = callback_data.replace("drink_", "").replace("_", " ").title()
         if drink == "None":
@@ -26,14 +28,14 @@ class DrinkSelection(Handler):
         order_json["drink"] = drink
 
         bot.database_client.update_user_order_json(telegram_id, order_json)
+
         bot.database_client.update_user_state(
             telegram_id, "WAIT_FOR_ORDER_APPROVE")
 
         bot.telegram_client.answerCallbackQuery(update["callback_query"]["id"])
+
         bot.telegram_client.deleteMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
-        )
+            chat_id=chat_id, message_id=message_id)
 
         order_summary = (
             f"Your order summary:\n"
@@ -42,13 +44,10 @@ class DrinkSelection(Handler):
             f"🥤 Drink: {order_json.get('drink', '-')}"
         )
 
-        bot.telegram_client.sendMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            text=order_summary,
-        )
+        bot.telegram_client.sendMessage(chat_id=chat_id, text=order_summary)
 
         bot.telegram_client.sendMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
+            chat_id=chat_id,
             text="Do you confirm your order?",
             reply_markup=json.dumps(
                 {

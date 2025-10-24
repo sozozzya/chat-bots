@@ -14,17 +14,20 @@ class RestartOrder(Handler):
 
     def handle(self, update: dict, state: str, order_json: dict) -> HandlerStatus:
         telegram_id = update["message"]["from"]["id"]
+        chat_id = update["callback_query"]["message"]["chat"]["id"]
 
         bot.database_client.clear_user_state_and_order(telegram_id)
+
         bot.database_client.update_user_state(
             telegram_id, "WAIT_FOR_PIZZA_NAME")
 
         bot.telegram_client.sendMessage(
-            chat_id=update["message"]["chat"]["id"],
-            text="Order restarted! Please choose pizza name 🍕",
+            chat_id=chat_id,
+            text="Please choose your pizza 🍽️",
             reply_markup=json.dumps(
                 {
-                    "inline_keyboard": [
+                    "inline_keyboard":
+                    [
                         [
                             {"text": "🍅 Margherita",
                                 "callback_data": "pizza_margherita"},

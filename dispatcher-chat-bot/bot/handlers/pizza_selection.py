@@ -18,6 +18,8 @@ class PizzaSelection(Handler):
     def handle(self, update: dict, state: str, order_json: dict) -> HandlerStatus:
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
+        chat_id = update["callback_query"]["message"]["chat"]["id"]
+        message_id = update["callback_query"]["message"]["message_id"]
 
         pizza_name = callback_data.replace(
             "pizza_", "").replace("_", "").title()
@@ -28,16 +30,13 @@ class PizzaSelection(Handler):
         bot.database_client.update_user_state(
             telegram_id, "WAIT_FOR_PIZZA_SIZE")
 
-        bot.telegram_client.answerCallbackQuery(
-            update["callback_query"]["id"])
+        bot.telegram_client.answerCallbackQuery(update["callback_query"]["id"])
 
         bot.telegram_client.deleteMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
-        )
+            chat_id=chat_id, message_id=message_id)
 
         bot.telegram_client.sendMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
+            chat_id=chat_id,
             text=f"Great choice! 🍕 \nYou selected {pizza_name}.\nNow choose your pizza size 📏",
             reply_markup=json.dumps(
                 {
@@ -45,12 +44,16 @@ class PizzaSelection(Handler):
                         [
                             {"text": "🍕 Small (25cm)",
                                 "callback_data": "size_small"},
+                        ],
+                        [
                             {"text": "🍕➡️ Medium (30cm)",
                              "callback_data": "size_medium"},
                         ],
                         [
                             {"text": "🍕🍕 Large (35cm)",
                              "callback_data": "size_large"},
+                        ],
+                        [
                             {"text": "🍕🍕👑 Extra Large (40cm)",
                              "callback_data": "size_extra_large"},
                         ],

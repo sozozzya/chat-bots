@@ -18,6 +18,8 @@ class PizzaSize(Handler):
     def handle(self, update: dict, state: str, order_json: dict) -> HandlerStatus:
         telegram_id = update["callback_query"]["from"]["id"]
         callback_data = update["callback_query"]["data"]
+        chat_id = update["callback_query"]["message"]["chat"]["id"]
+        message_id = update["callback_query"]["message"]["message_id"]
 
         size_mapping = {
             "size_small": "Small (25cm)",
@@ -39,12 +41,10 @@ class PizzaSize(Handler):
             update["callback_query"]["id"])
 
         bot.telegram_client.deleteMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
-            message_id=update["callback_query"]["message"]["message_id"],
-        )
+            chat_id=chat_id, message_id=message_id)
 
         bot.telegram_client.sendMessage(
-            chat_id=update["callback_query"]["message"]["chat"]["id"],
+            chat_id=chat_id,
             text=f"Perfect! 🎯 \nSize {pizza_size} selected.\nWould you like a drink? 🥤",
             reply_markup=json.dumps(
                 {
@@ -69,7 +69,7 @@ class PizzaSize(Handler):
                         ],
                         [
                             {"text": "🚫 No drinks",
-                             "callback_data": "drink_none"},
+                             "callback_data": "drink_no_drinks"},
                         ],
                     ],
                 },
